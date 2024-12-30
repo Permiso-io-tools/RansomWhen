@@ -1,0 +1,45 @@
+{
+    "Create Locked Key and Encrypt Bucket using CopyObject": [
+        "kms:CreateKey",
+        "s3:PutBucketEncryptionConfiguration",
+        "s3:CopyObject"
+    ],
+
+    "Create Locked Key and Encrypt Bucket using Get/Put Object": [
+        "kms:CreateKey",
+        "s3:PutBucketEncryptionConfiguration",
+        "s3:GetObject",
+        "s3:PutObject"
+    ],
+
+    "Update Key Policy to Lock Key and Encrypt Bucket using CopyObject": [
+        "kms:PutKeyPolicy",
+        "s3:PutBucketEncryptionConfiguration",
+        "s3:CopyObject"
+    ],
+
+    "Update Key Policy to Lock Key and Encrypt Bucket using Get/Put Object": [
+        "kms:PutKeyPolicy",
+        "s3:PutBucketEncryptionConfiguration",
+        "s3:GetObject",
+        "s3:PutObject"
+    ],
+
+    "CloudTrail Stop Logging": [
+        "cloudtrail:StopLogging"
+    ],
+
+    "CloudTrail Delete Trail": [
+        "cloudtrail:DeleteTrail"
+    ],
+
+    "IAM Create and Delete User": [
+        "iam:CreateUser",
+        "iam:DeleteUser"
+    ],
+
+    "IAM Create and Delete Role": [
+        "iam:CreateRole",
+        "iam:DeleteRole"
+    ]
+}

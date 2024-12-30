@@ -1,0 +1,24 @@
+{
+  "kms:CreateKey": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": {
+      "bypassPolicyLockoutSafetyCheck": true
+    },
+    "ResponseElements": null,
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "kms.amazonaws.com"
+  },
+  "kms:PutKeyPolicy": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": {
+      "bypassPolicyLockoutSafetyCheck": true
+    },
+    "ResponseElements": {},
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "kms.amazonaws.com"
+  }
+}
