@@ -5,16 +5,46 @@ from core.Resources.CloudTrail.GetCTEvents import GetCTEvents
 import json
 from core.Resources.OutputDump.OutputDump import dumpCSV
 
-class MainActivity:
-    def __init__(self, profile, accountID, identity, identitytype, verbose):
+class ListEvents:
+    def __init__(self, profile, accountID):
         self.bypassCheckObj = BypassCheck(profile=profile)
         self.cloudTrailObj = GetCTEvents(profile=profile)
         self.accountID = accountID
-        self.identity = identity
-        self.identitytype = identitytype
-        self.verbose = verbose
 
-    def main_activity(self):
+    def list_events(self):
+        scenariofile = "scenarios/events.json"
+
+        with open(scenariofile) as scenariosfile:
+            SCENARIOS = json.load(scenariosfile)
+
+        users = self.bypassCheckObj.list_users_arn()
+        users.extend(self.bypassCheckObj.list_roles_arn())
+
+        eventsperidentity = {}
+
+        if users is not None and len(users) > 0:
+            for user in users:
+                printOutput("----------------------------------------------------", type="loading")
+                printOutput(f"           {user}", type="loading")
+                printOutput("----------------------------------------------------", type="loading")
+                allidentityevents = []
+                for eventname, eventAttributes in self.cloudTrailObj.eventsJSON.items():
+                    allidentityevents.extend(self.cloudTrailObj.getCTAPIEvents(identityArn=user, eventName=eventname))
+
+                eventsperidentity[user] = allidentityevents
+
+        return eventsperidentity
+
+class IdentitiesEnumeration:
+    def __init__(self, profile, accountID, args):
+        self.bypassCheckObj = BypassCheck(profile=profile)
+        #self.cloudTrailObj = GetCTEvents(profile=profile)
+        self.accountID = accountID
+        self.identity = args.identity_name
+        self.identitytype = args.identity_type
+        self.verbose = args.verbose
+
+    def identities_enumeration(self):
         scenariofile = "scenarios/scenarios.json"
 
         with open(scenariofile) as scenariosfile:

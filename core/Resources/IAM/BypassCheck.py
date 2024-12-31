@@ -36,6 +36,34 @@ class BypassCheck:
             printOutput(f"Error listing Roles: {sys.exc_info()}", "failure")
             return None
 
+    def list_roles_arn(self):
+        printOutput("Listing Roles", "loading")
+        try:
+            users = self.client.list_roles()['Roles']
+            printOutput(f"Found {str(len(users))} Roles in the infrastructure", "success")
+            if len(users) > 0:
+                retusers = [i['Arn'] for i in users]
+                return retusers
+            else:
+                return []
+        except:
+            printOutput(f"Error listing Roles: {sys.exc_info()}", "failure")
+            return None
+
+    def list_users_arn(self):
+        printOutput("Listing Users", "loading")
+        try:
+            users = self.client.list_users()['Users']
+            printOutput(f"Found {str(len(users))} Users in the infrastructure", "success")
+            if len(users) > 0:
+                retusers = [i['Arn'] for i in users]
+                return retusers
+            else:
+                return []
+        except:
+            printOutput(f"Error listing Users: {sys.exc_info()}", "failure")
+            return None
+
     def get_attached_role_policies(self, role):
         printOutput(f"Listing Attached Policies for role {role}", "loading")
         try:

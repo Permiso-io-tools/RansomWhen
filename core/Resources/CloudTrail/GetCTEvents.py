@@ -17,7 +17,8 @@ class GetCTEvents:
             UserAgent=None,
             Service="cloudtrail"
         )
-        self.eventsJSON = json.loads("./scenarios/events.json")
+        with open("./scenarios/events.json") as scfile:
+            self.eventsJSON = json.load(scfile)
 
     def filterMaliciousEvents(self, identityArn, events):
         printOutput(
@@ -53,6 +54,8 @@ class GetCTEvents:
                         if eventData['userIdentity']['arn'] == "IAMUser" and not self.eventsJSON[event['EventName']]['Identity'] == eventData['userIdentity']['arn']:
                             continue
                         if eventData['userIdentity']['arn'] == "AssumedRole" and not self.eventsJSON[event['EventName']]['Identity'] == eventData['userIdentity']['arn'].replace(f"/{event['UserName']}"):
+                            continue
+                        if eventData['userIdentity']['arn'] == "IAMUser" and not self.eventsJSON[event['EventName']]['Identity'] == eventData['userIdentity']['arn']:
                             continue
                     importantEvents.append(event)
 
@@ -96,9 +99,11 @@ class GetCTEvents:
                 logs = response['Events']
                 events.extend(self.filterMaliciousEvents(identityArn=identityArn, events=logs))
 
+            return events
+
         except:
             printOutput(f"Error looking at events: {sys.exc_info()}", "failure")
-            return None
+            return []
 
     def getCTS3Events(self, identityArn, eventName):
         printOutput(

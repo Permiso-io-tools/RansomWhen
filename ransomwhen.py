@@ -1,16 +1,11 @@
-import os
+import os, json
 
 from core.Other.Arguments.ArgParse import parseArgs
 from core.Other.PrintOutput.PrintOutput import printOutput
 from core.Authentication.Authentication import authenticate
-from core.Resources.MainActivity.MainActivity import MainActivity
+from core.Resources.MainActivity.MainActivity import IdentitiesEnumeration, ListEvents
 
 args = parseArgs()
-
-if args.identity_name is not None:
-    if args.identity_type is None:
-        printOutput("You need to also provide the identity type using -it if you provide the identity name using -i", "failure")
-        exit()
 
 if not os.path.exists("./output"):
     os.mkdir("./output")
@@ -42,6 +37,19 @@ if accountid is None:
 if not os.path.exists(f'./output/{accountid}'):
     os.mkdir(f"./output/{accountid}")
 
-mainactivity = MainActivity(profile=profile, accountID=accountid, identity=args.identity_name, identitytype=args.identity_type, verbose=args.verbose)
-mainactivity.main_activity()
+if args.provider == "IDENTITIES":
+    if args.identity_name is not None:
+        if args.identity_type is None:
+            printOutput(
+                "You need to also provide the identity type using -it if you provide the identity name using -i",
+                "failure")
+            exit()
+    mainactivity = IdentitiesEnumeration(profile=profile, accountID=accountid, args=args)
+    mainactivity.identities_enumeration()
 
+elif args.provider == "EVENTS":
+    mainactivity = ListEvents(profile=profile, accountID=accountid)
+    print(json.dumps(mainactivity.list_events(), indent=4, default=str))
+
+else:
+    printOutput("Provider should either be IDENTITIES or EVENTS", "failure")
