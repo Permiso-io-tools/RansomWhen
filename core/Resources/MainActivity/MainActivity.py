@@ -3,45 +3,74 @@ from core.Other.TablePrint import TablePrint
 from core.Resources.IAM.BypassCheck import BypassCheck
 from core.Resources.CloudTrail.GetCTEvents import GetCTEvents
 import json
-from core.Resources.OutputDump.OutputDump import dumpCSV
+from core.Resources.OutputDump.OutputDump import dumpCSV, dumpEventsCSV
+from core.Authentication.Authentication import authenticate
+import botocore
 
 class ListEvents:
-    def __init__(self, profile, accountID):
-        self.bypassCheckObj = BypassCheck(profile=profile)
-        self.cloudTrailObj = GetCTEvents(profile=profile)
+    def __init__(self, profile, accountID, verbose, identity_name):
+        self.profile = profile
+        self.verbose = verbose
+        self.bypassCheckObj = BypassCheck(profile=profile, verbose=self.verbose)
+        self.cloudTrailObj = GetCTEvents(profile=profile, verbose=self.verbose)
         self.accountID = accountID
+        self.identity_name = identity_name
 
     def list_events(self):
         scenariofile = "scenarios/events.json"
-
         with open(scenariofile) as scenariosfile:
             SCENARIOS = json.load(scenariosfile)
 
-        users = self.bypassCheckObj.list_users_arn()
-        users.extend(self.bypassCheckObj.list_roles_arn())
+        if self.identity_name is not None:
+            iamClient = authenticate(Profile=self.profile, AccessKey=None, SecretKey=None, SessionToken=None, UserAgent=None, Service="iam")
+            if iamClient is None:
+                exit()
+            try:
+                userarn = iamClient.get_user(UserName=self.identity_name)['User']["Arn"]
+                users = [userarn]
+            except iamClient.exceptions.NoSuchEntityException:
+                try:
+                    userarn = \
+                    authenticate(Profile=self.profile, AccessKey=None, SecretKey=None, SessionToken=None, UserAgent=None,
+                                 Service="iam").get_role(RoleName=self.identity_name)['Role']["Arn"]
+                    users = [userarn]
+                except iamClient.exceptions.NoSuchEntityException:
+                    printOutput(message=f"Identity {self.identity_name} does not exist on this account", type="failure")
+                    exit()
 
-        eventsperidentity = {}
+                except Exception as e:
+                    printOutput(message=f"Error checking if identity exists: {str(e)}", type="failure")
+                    exit()
+
+            except Exception as e:
+                printOutput(message=f"Error checking if identity exists: {str(e)}", type="failure")
+                exit()
+
+        else:
+            users = self.bypassCheckObj.list_users_arn()
+            users.extend(self.bypassCheckObj.list_roles_arn())
 
         if users is not None and len(users) > 0:
             for user in users:
-                printOutput("----------------------------------------------------", type="loading")
-                printOutput(f"           {user}", type="loading")
-                printOutput("----------------------------------------------------", type="loading")
+                printOutput("----------------------------------------------------", type="loading", verbose=True)
+                printOutput(f"           {user}", type="loading", verbose=True)
+                printOutput("----------------------------------------------------", type="loading", verbose=True)
                 allidentityevents = []
                 for eventname, eventAttributes in self.cloudTrailObj.eventsJSON.items():
                     allidentityevents.extend(self.cloudTrailObj.getCTAPIEvents(identityArn=user, eventName=eventname))
 
-                eventsperidentity[user] = allidentityevents
-
-        return eventsperidentity
+                tablePrintObj = TablePrint(self.verbose)
+                rolefields = tablePrintObj.eventTableprint(allidentityevents)
+                dumpEventsCSV(rolefields, self.accountID, user.split("/")[-1])
 
 class IdentitiesEnumeration:
     def __init__(self, profile, accountID, args):
-        self.bypassCheckObj = BypassCheck(profile=profile)
+        self.bypassCheckObj = BypassCheck(profile=profile, verbose=args.verbose)
         #self.cloudTrailObj = GetCTEvents(profile=profile)
         self.accountID = accountID
         self.identity = args.identity_name
         self.identitytype = args.identity_type
+        self.include_denied = args.include_denied
         self.verbose = args.verbose
 
     def identities_enumeration(self):
@@ -63,9 +92,9 @@ class IdentitiesEnumeration:
 
         if users is not None and len(users) > 0:
             for user in users:
-                printOutput("----------------------------------------------------", type="loading")
-                printOutput(f"           {user}", type="loading")
-                printOutput("----------------------------------------------------", type="loading")
+                printOutput("----------------------------------------------------", type="loading", verbose=True)
+                printOutput(f"           {user}", type="loading", verbose=True)
+                printOutput("----------------------------------------------------", type="loading", verbose=True)
                 policyDefinition = {
                     "Policies": []
                 }
@@ -101,26 +130,26 @@ class IdentitiesEnumeration:
                     stringPolicies.append(json.dumps(policy))
                 evaluationResponse = self.bypassCheckObj.find_permissions_in_policy(policyDocumentList=stringPolicies, permissionBoundaryList=userPermissionBoundary, SCENARIOS=SCENARIOS)
 
-                if self.verbose:
-                    tablePrintObj = TablePrint()
+                if self.include_denied:
+                    tablePrintObj = TablePrint(self.verbose)
                     userfields = tablePrintObj.tableprint(evaluationResponse)
                     dumpCSV(userfields, self.accountID, user)
                 else:
                     if self.bypassCheckObj.filterInterestingIdentities(evaluationResponse):
-                        tablePrintObj = TablePrint()
+                        tablePrintObj = TablePrint(self.verbose)
                         userfields = tablePrintObj.tableprint(evaluationResponse)
                         dumpCSV(userfields, self.accountID, user)
                     else:
                         printOutput(
                             f"User '{user}' is not allowed to execute any of the scenario calls and is skipped. Use -v if you want it included",
-                            "success")
+                            "success", verbose=True)
 
 
         if roles is not None and len(roles) > 0:
             for role in roles:
-                printOutput("----------------------------------------------------", type="loading")
-                printOutput(f"           {role}", type="loading")
-                printOutput("----------------------------------------------------", type="loading")
+                printOutput("----------------------------------------------------", type="loading", verbose=True)
+                printOutput(f"           {role}", type="loading", verbose=True)
+                printOutput("----------------------------------------------------", type="loading", verbose=True)
                 policyDefinition = {
                     "Policies": []
                 }
@@ -144,14 +173,14 @@ class IdentitiesEnumeration:
                     stringPolicies.append(json.dumps(policy))
                 evaluationResponse = self.bypassCheckObj.find_permissions_in_policy(policyDocumentList=stringPolicies, permissionBoundaryList=rolePermissionBoundary, SCENARIOS=SCENARIOS)
 
-                if self.verbose:
-                    tablePrintObj = TablePrint()
+                if self.include_denied:
+                    tablePrintObj = TablePrint(self.verbose)
                     rolefields = tablePrintObj.tableprint(evaluationResponse)
                     dumpCSV(rolefields, self.accountID, role)
                 else:
                     if self.bypassCheckObj.filterInterestingIdentities(evaluationResponse):
-                        tablePrintObj = TablePrint()
+                        tablePrintObj = TablePrint(self.verbose)
                         rolefields = tablePrintObj.tableprint(evaluationResponse)
                         dumpCSV(rolefields, self.accountID, role)
                     else:
-                        printOutput(f"Role '{role}' is not allowed to execute any of the scenario calls and is skipped. Use -v if you want it included", "success")
+                        printOutput(f"Role '{role}' is not allowed to execute any of the scenario calls and is skipped. Use -v if you want it included", "success", verbose=self.verbose)

@@ -13,4 +13,29 @@ def dumpCSV(result, outputdir, identity):
 
     #writer.writeheader()
     #del (result[0])
-    printOutput(f"Outputfile {csvfilename} successfully created", "success")
+    printOutput(f"Outputfile {csvfilename} successfully created", "success", verbose=True)
+
+
+def dumpEventsCSV(result, outputdir, identity):
+    csvfilename = f'./output/{outputdir}/{identity}-events.csv'
+
+    csvfile = csv.writer(open(csvfilename, "w"))
+
+    csvfile.writerow([
+            "EventTime",
+            "EventName",
+            "AccessKeyId",
+            "SourceIP",
+            "Region",
+            "RequestParameters",
+            "ResponseElements"
+        ]
+    )
+    #writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    for row in result:
+        #csvfile.writerow(row.values())
+        csvfile.writerow(row)
+
+    #writer.writeheader()
+    #del (result[0])
+    printOutput(f"Outputfile {csvfilename} successfully created", "success", verbose=True)

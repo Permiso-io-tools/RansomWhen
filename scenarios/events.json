@@ -1,5 +1,5 @@
 {
-  "kms:CreateKey": {
+  "CreateKey": {
     "UserAgent": null,
     "Identity": null,
     "RequestParameters": {
@@ -10,7 +10,7 @@
     "ErrorMessage": null,
     "EventSource": "kms.amazonaws.com"
   },
-  "kms:PutKeyPolicy": {
+  "PutKeyPolicy": {
     "UserAgent": null,
     "Identity": null,
     "RequestParameters": {

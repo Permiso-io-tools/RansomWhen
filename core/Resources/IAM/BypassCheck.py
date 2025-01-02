@@ -7,7 +7,7 @@ from core.Other.PrintOutput.PrintOutput import printOutput
 from core.Resources.CloudTrail.GetCTEvents import GetCTEvents
 
 class BypassCheck:
-    def __init__(self, profile):
+    def __init__(self, profile, verbose):
         self.profile = profile
         self.client = authenticate(
             Profile=self.profile,
@@ -17,16 +17,17 @@ class BypassCheck:
             UserAgent=None,
             Service="iam"
         )
+        self.verbose = verbose
 
     #--------------------------------------------------------
     #                Users
     #--------------------------------------------------------
 
     def list_roles(self):
-        printOutput("Listing Roles", "loading")
+        printOutput("Listing Roles", "loading", verbose=self.verbose)
         try:
             users = self.client.list_roles()['Roles']
-            printOutput(f"Found {str(len(users))} Roles in the infrastructure", "success")
+            printOutput(f"Found {str(len(users))} Roles in the infrastructure", "success", verbose=self.verbose)
             if len(users) > 0:
                 retusers = [i['RoleName'] for i in users]
                 return retusers
@@ -37,10 +38,10 @@ class BypassCheck:
             return None
 
     def list_roles_arn(self):
-        printOutput("Listing Roles", "loading")
+        printOutput("Listing Roles", "loading", verbose=self.verbose)
         try:
             users = self.client.list_roles()['Roles']
-            printOutput(f"Found {str(len(users))} Roles in the infrastructure", "success")
+            printOutput(f"Found {str(len(users))} Roles in the infrastructure", "success", verbose=self.verbose)
             if len(users) > 0:
                 retusers = [i['Arn'] for i in users]
                 return retusers
@@ -51,10 +52,10 @@ class BypassCheck:
             return None
 
     def list_users_arn(self):
-        printOutput("Listing Users", "loading")
+        printOutput("Listing Users", "loading", verbose=self.verbose)
         try:
             users = self.client.list_users()['Users']
-            printOutput(f"Found {str(len(users))} Users in the infrastructure", "success")
+            printOutput(f"Found {str(len(users))} Users in the infrastructure", "success", verbose=self.verbose)
             if len(users) > 0:
                 retusers = [i['Arn'] for i in users]
                 return retusers
@@ -65,10 +66,10 @@ class BypassCheck:
             return None
 
     def get_attached_role_policies(self, role):
-        printOutput(f"Listing Attached Policies for role {role}", "loading")
+        printOutput(f"Listing Attached Policies for role {role}", "loading", verbose=self.verbose)
         try:
             policies = self.client.list_attached_role_policies(RoleName=role)['AttachedPolicies']
-            printOutput(f"Found {str(len(policies))} attached to {role}", "success")
+            printOutput(f"Found {str(len(policies))} attached to {role}", "success", verbose=self.verbose)
             policydocs = []
             if len(policies) > 0:
                 for policyarn in policies:
@@ -89,10 +90,10 @@ class BypassCheck:
             return None
 
     def get_role_permission_boundary(self, role):
-        printOutput(f"Getting Permission Boundary for role {role}", "loading")
+        printOutput(f"Getting Permission Boundary for role {role}", "loading", verbose=self.verbose)
         try:
             policies = self.client.get_role(RoleName=role)['Role']
-            printOutput(f"Got Permission Boundary  attached to {role}", "success")
+            printOutput(f"Got Permission Boundary  attached to {role}", "success", verbose=self.verbose)
             policyDoc = None
             if 'PermissionsBoundary' in policies:
                 policyarn = policies['PermissionsBoundary']['PermissionsBoundaryArn']
@@ -113,10 +114,10 @@ class BypassCheck:
             return None
 
     def get_role_inline_policies(self, role):
-        printOutput(f"Listing Inline Policies for role {role}", "loading")
+        printOutput(f"Listing Inline Policies for role {role}", "loading", verbose=self.verbose)
         try:
             policies = self.client.list_role_policies(RoleName=role)['PolicyNames']
-            printOutput(f"Found {str(len(policies))} inline policies to {role}", "success")
+            printOutput(f"Found {str(len(policies))} inline policies to {role}", "success", verbose=self.verbose)
             policydocs = []
             for policy in policies:
                 policydocs.append(self.client.get_role_policy(RoleName=role, PolicyName=policy)['PolicyDocument'])
@@ -126,10 +127,10 @@ class BypassCheck:
             return None
 
     def list_users(self):
-        printOutput("Listing Users", "loading")
+        printOutput("Listing Users", "loading", verbose=self.verbose)
         try:
             users = self.client.list_users()['Users']
-            printOutput(f"Found {str(len(users))} Users in the infrastructure", "success")
+            printOutput(f"Found {str(len(users))} Users in the infrastructure", "success", verbose=self.verbose)
             if len(users) > 0:
                 retusers = [i['UserName'] for i in users]
                 return retusers
@@ -140,10 +141,10 @@ class BypassCheck:
             return None
 
     def get_attached_user_policies(self, user):
-        printOutput(f"Listing Attached Policies for user {user}", "loading")
+        printOutput(f"Listing Attached Policies for user {user}", "loading", verbose=self.verbose)
         try:
             policies = self.client.list_attached_user_policies(UserName=user)['AttachedPolicies']
-            printOutput(f"Found {str(len(policies))} attached to {user}", "success")
+            printOutput(f"Found {str(len(policies))} attached to {user}", "success", verbose=self.verbose)
             policydocs = []
             if len(policies) > 0:
                 for policyarn in policies:
@@ -164,10 +165,10 @@ class BypassCheck:
             return None
 
     def get_user_permission_boundary(self, user):
-        printOutput(f"Getting Permission Boundary for user {user}", "loading")
+        printOutput(f"Getting Permission Boundary for user {user}", "loading", verbose=self.verbose)
         try:
             policies = self.client.get_user(UserName=user)['User']
-            printOutput(f"Got Permission Boundary  attached to {user}", "success")
+            printOutput(f"Got Permission Boundary  attached to {user}", "success", verbose=self.verbose)
             policyDoc = None
             if 'PermissionsBoundary' in policies:
                 policyarn = policies['PermissionsBoundary']['PermissionsBoundaryArn']
@@ -188,10 +189,10 @@ class BypassCheck:
             return None
 
     def get_user_inline_policies(self, user):
-        printOutput(f"Listing Inline Policies for user {user}", "loading")
+        printOutput(f"Listing Inline Policies for user {user}", "loading", verbose=self.verbose)
         try:
             policies = self.client.list_user_policies(UserName=user)['PolicyNames']
-            printOutput(f"Found {str(len(policies))} inline policies to {user}", "success")
+            printOutput(f"Found {str(len(policies))} inline policies to {user}", "success", verbose=self.verbose)
             policydocs = []
             for policy in policies:
                 policydocs.append(self.client.get_user_policy(UserName=user, PolicyName=policy)['PolicyDocument'])
@@ -201,20 +202,20 @@ class BypassCheck:
             return None
 
     def get_user_groups(self, user):
-        printOutput(f"Listing Groups for user {user}", "loading")
+        printOutput(f"Listing Groups for user {user}", "loading", verbose=self.verbose)
         try:
             groups = self.client.list_groups_for_user(UserName=user)['Groups']
-            printOutput(f"Found {str(len(groups))} attached to {user}", "success")
+            printOutput(f"Found {str(len(groups))} attached to {user}", "success", verbose=self.verbose)
             return groups
         except:
             printOutput(f"Error listing groups for user {user}: {sys.exc_info()}", "failure")
             return None
 
     def get_attached_group_policies(self, group):
-        printOutput(f"Listing Attached Policies for group {group['GroupName']}", "loading")
+        printOutput(f"Listing Attached Policies for group {group['GroupName']}", "loading", verbose=self.verbose)
         try:
             policies = self.client.list_attached_group_policies(GroupName=group['GroupName'])['AttachedPolicies']
-            printOutput(f"Found {str(len(policies))} attached to {group['GroupName']}", "success")
+            printOutput(f"Found {str(len(policies))} attached to {group['GroupName']}", "success", verbose=self.verbose)
             policydocs = []
             if len(policies) > 0:
                 for policyarn in policies:
@@ -234,11 +235,11 @@ class BypassCheck:
             return None
 
     def get_group_inline_policies(self, group):
-        printOutput(f"Listing Inline Policies for group {group['GroupName']}", "loading")
+        printOutput(f"Listing Inline Policies for group {group['GroupName']}", "loading", verbose=self.verbose)
         policydocs = []
         try:
             policies = self.client.list_group_policies(GroupName=group['GroupName'])['PolicyNames']
-            printOutput(f"Found {str(len(policies))} inline policies to {group['GroupName']}", "success")
+            printOutput(f"Found {str(len(policies))} inline policies to {group['GroupName']}", "success", verbose=self.verbose)
             for policy in policies:
                 policydocs.append(self.client.get_group_policy(GroupName=group['GroupName'], PolicyName=policy)['PolicyDocument'])
             return policydocs

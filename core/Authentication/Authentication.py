@@ -45,7 +45,7 @@ def authWithProfile(profile, userAgent, service):
 
 def authenticate(Profile, AccessKey, SecretKey, SessionToken, UserAgent, Service):
     if Profile is not None and AccessKey is not None and SecretKey is not None and SessionToken is not None:
-        printOutput("Please enter either profile or creds", "failure")
+        printOutput(message="Please enter either profile or creds", type="failure", verbose=True)
         return None
     elif Profile is not None and AccessKey is None and SecretKey is None and SessionToken is None:
         return authWithProfile(Profile, UserAgent, Service)

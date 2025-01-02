@@ -24,7 +24,10 @@ try:
         UserAgent=None
     )
     accountid = client.get_caller_identity()['Account']
-    printOutput(f"Testing Account {accountid}", "loading")
+
+    printOutput(f"---------------------------------------------------------", "loading", verbose=True)
+    printOutput(f"       Testing Account {accountid}", "loading", verbose=True)
+    printOutput(f"---------------------------------------------------------", "loading", verbose=True)
 
 except Exception as e:
     printOutput(f"Error with credentials provided: {str(e)}", "error")
@@ -48,8 +51,10 @@ if args.provider == "IDENTITIES":
     mainactivity.identities_enumeration()
 
 elif args.provider == "EVENTS":
-    mainactivity = ListEvents(profile=profile, accountID=accountid)
-    print(json.dumps(mainactivity.list_events(), indent=4, default=str))
+    mainactivity = ListEvents(profile=profile, accountID=accountid, verbose=args.verbose, identity_name=args.identity_name)
+    mainactivity.list_events()
+    #print(json.dumps(mainactivity.list_events(), indent=4, default=str))
+
 
 else:
     printOutput("Provider should either be IDENTITIES or EVENTS", "failure")
