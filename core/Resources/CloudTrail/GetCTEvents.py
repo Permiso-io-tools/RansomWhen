@@ -1,4 +1,5 @@
 import json
+import re
 import sys
 import datetime
 
@@ -20,6 +21,67 @@ class GetCTEvents:
         self.verbose = verbose
         with open("./scenarios/events.json") as scfile:
             self.eventsJSON = json.load(scfile)
+
+
+    def groupMaliciousEvents(self, identityEvents, identityArn):
+        printOutput(
+            f"Finding Malicious Activity for '{identityArn}'", "loading", verbose=self.verbose)
+
+        maliciousAttacks = []
+
+        try:
+            with open("./scenarios/scenarios.json") as scenariofile:
+                SCENARIOS = json.load(scenariofile)
+        except Exception as e:
+            printOutput(f"Error Opening ./scenarios/scenarios.json: {str(e)}", "failure")
+            exit()
+
+        fieldNames = {
+            "EventTime": "",
+            "EventName": "",
+            "AccessKeyId": "",
+            "SourceIP": "",
+            "Region": "",
+            "RequestParameters": "",
+            "ResponseElements": "",
+            "Resources": ""
+        }
+        singleEvent = []
+
+        for event in identityEvents:
+            if event['EventName'] == "kms:CreateKey" or event['EventName'] == "kms:CreateKey":
+                if event['Resources'] != "":
+                    keyresources = json.loads(event['Resources'])
+                    for kmskeyres in keyresources:
+                        if kmskeyres['ResourceType'] == "AWS::KMS::Key" and "arn:aws:kms:" in kmskeyres['ResourceName']:
+                            kmskey = kmskeyres['ResourceName']
+                            singleEvent.append(event)
+
+                            for allevent in identityEvents:
+                                if allevent['EventName'] == "kms:PutKeyPolicy" or allevent['EventName'] == "s3:PutBucketEncryptionConfiguration":
+                                    if event['Resources'] != "":
+                                        keyresources = json.loads(allevent['Resources'])
+                                        for kmskeyres in keyresources:
+                                            if kmskeyres['ResourceType'] == "AWS::KMS::Key" and "arn:aws:kms:" in kmskeyres[
+                                                'ResourceName']:
+                                                if kmskey == kmskeyres['ResourceName']:
+                                                    singleEvent.append(allevent)
+                                            if allevent['EventName'] == "s3:PutBucketEncryptionConfiguration" and kmskeyres['ResourceType'] == "AWS::S3::Bucket":
+                                                s3bucket = kmskeyres['ResourceName']
+
+
+
+            if len(singleEvent) > 0:
+                maliciousAttacks.append(singleEvent)
+                singleEvent = []
+
+
+
+
+
+
+        printOutput(
+            f"Found {str(len(maliciousAttacks))} Malicious Activity for '{identityArn}'", "loading", verbose=self.verbose)
 
     def filterMaliciousEvents(self, identityArn, events):
         printOutput(
@@ -46,6 +108,11 @@ class GetCTEvents:
                 ##print(type(event['CloudTrailEvent']))
                 eventData = json.loads(event['CloudTrailEvent'])
                 ##print(eventData)
+
+                if not "UserName" in event and "Username" in event:
+                    event['UserName'] = event['Username']
+                    del(event['Username'])
+
                 if event['EventName'] in self.eventsJSON and event["EventSource"] == self.eventsJSON[event['EventName']]["EventSource"]:
                     ##print(event)
                     if self.eventsJSON[event['EventName']]['UserAgent'] is not None and not self.eventsJSON[event['EventName']]['UserAgent'] in eventData['userAgent']:
@@ -69,7 +136,7 @@ class GetCTEvents:
                     #print(self.eventsJSON[event['EventName']]['Identity'])
                     if eventData['userIdentity']['type'] == "IAMUser" and not identitytocheck == eventData['userIdentity']['arn']:
                         continue
-                    if eventData['userIdentity']['type'] == "AssumedRole" and not identitytocheck == eventData['userIdentity']['arn'].replace(f"/{event['UserName']}"):
+                    if eventData['userIdentity']['type'] == "AssumedRole" and not identitytocheck == eventData['userIdentity']['arn'].replace(f"/{event['UserName']}", ""):
                         continue
                     #if eventData['userIdentity']['type'] == "IAMUser" and not self.eventsJSON[event['EventName']]['Identity'] == eventData['userIdentity']['arn']:
                     #    continue
@@ -77,16 +144,18 @@ class GetCTEvents:
 
                     #importantEvents.append(event)
                     importantEvents.append({
-                        "EventTime": event['EventTime'].strftime("%Y-%m-%dT%H:%M:%SZ"),
+                        "EventTime": event['EventTime'].strftime("%Y-%m-%d %H:%M:%S"),
                         "EventName": f"{event['EventSource'].split('.')[0]}:{event['EventName']}",
                         "AccessKeyId": event['AccessKeyId'],
                         "SourceIP": eventData['sourceIPAddress'],
                         "Region": eventData['awsRegion'],
                         "RequestParameters": json.dumps(eventData['requestParameters'], indent=4, default=str) if type(eventData['requestParameters']) == list or type(eventData['requestParameters']) == dict else "",
-                        "ResponseElements": json.dumps(eventData['responseElements'], indent=4, default=str) if type(eventData['requestParameters']) == list or type(eventData['requestParameters']) == dict else ""
+                        "ResponseElements": json.dumps(eventData['responseElements'], indent=4, default=str) if type(eventData['requestParameters']) == list or type(eventData['requestParameters']) == dict else "",
+                        "Resources": json.dumps(event['Resources'], indent=4, default=str) if type(event['Resources']) == list or type(event['Resources']) == dict else ""
                     })
 
             printOutput(f"Found {str(len(importantEvents))} events for identity", "success", verbose=self.verbose)
+            importantEvents.sort(key=lambda item: item['EventTime'], reverse=True)
             return importantEvents
 
         except Exception as e:

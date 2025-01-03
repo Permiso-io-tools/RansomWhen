@@ -28,7 +28,8 @@ def dumpEventsCSV(result, outputdir, identity):
             "SourceIP",
             "Region",
             "RequestParameters",
-            "ResponseElements"
+            "ResponseElements",
+            "Resources"
         ]
     )
     #writer = csv.DictWriter(csvfile, fieldnames=fieldnames)

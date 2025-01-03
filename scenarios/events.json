@@ -1,10 +1,9 @@
 {
+
   "CreateKey": {
     "UserAgent": null,
     "Identity": null,
-    "RequestParameters": {
-      "bypassPolicyLockoutSafetyCheck": true
-    },
+    "RequestParameters": null,
     "ResponseElements": null,
     "ErrorCode": null,
     "ErrorMessage": null,
@@ -13,12 +12,100 @@
   "PutKeyPolicy": {
     "UserAgent": null,
     "Identity": null,
-    "RequestParameters": {
-      "bypassPolicyLockoutSafetyCheck": true
-    },
-    "ResponseElements": {},
+    "RequestParameters": null,
+    "ResponseElements": null,
     "ErrorCode": null,
     "ErrorMessage": null,
     "EventSource": "kms.amazonaws.com"
+  },
+  "PutBucketEncryptionConfiguration": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": null,
+    "ResponseElements": null,
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "s3.amazonaws.com"
+  },
+  "CopyObject": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": null,
+    "ResponseElements": {},
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "s3.amazonaws.com"
+  },
+  "PutObject": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": null,
+    "ResponseElements": {},
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "s3.amazonaws.com"
+  },
+  "GetObject": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": null,
+    "ResponseElements": {},
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "s3.amazonaws.com"
+  },
+  "CreateUser": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": null,
+    "ResponseElements": {},
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "iam.amazonaws.com"
+  },
+  "DeleteUser": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": null,
+    "ResponseElements": {},
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "iam.amazonaws.com"
+  },
+  "CreateRole": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": null,
+    "ResponseElements": {},
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "iam.amazonaws.com"
+  },
+  "DeleteRole": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": null,
+    "ResponseElements": {},
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "iam.amazonaws.com"
+  },
+  "StopLogging": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": null,
+    "ResponseElements": {},
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "cloudtrail.amazonaws.com"
+  },
+  "DeleteTrail": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": null,
+    "ResponseElements": {},
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "cloudtrail.amazonaws.com"
   }
 }

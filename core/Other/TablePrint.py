@@ -31,7 +31,8 @@ class TablePrint():
             "SourceIP",
             "Region",
             "RequestParameters",
-            "ResponseElements"
+            "ResponseElements",
+            "Resources"
         ]
 
         if len(queryResult) == 0:
@@ -160,25 +161,46 @@ class TablePrint():
 
             # print(tabulate(queryResult, headers='keys', tablefmt='psql'))
             column_width, row_width = os.get_terminal_size(0)
-            maxwidth = int(os.get_terminal_size().columns / 3)
+            maxwidth = int(os.get_terminal_size().columns / 2)
             table = prettytable.PrettyTable(
                 max_table_width=column_width,
                 align='l',
                 field_names=fieldNames.keys(),
                 max_width=maxwidth
             )
-            table.set_style(prettytable.DOUBLE_BORDER)
+            #table.set_style(prettytable.DOUBLE_BORDER)
             for row in allfields:
-                table.add_row(row.values())
-                table.add_row(["="*scenariolength, "="*statuslength, "="*allowlength, "="*denylength])
+                table.add_row(list(row.values()))
+                #table.add_row(["="*scenariolength, "="*statuslength, "="*allowlength, "="*denylength])
 
             rows = []
             for row in allfields:
                 rows.append(row.values())
 
+            tablestring = table.get_string().split("\n")[0].split("+")
+            del (tablestring[0])
+            del (tablestring[-1])
+            tablestringrow = ["-" * (len(stringrow) - 2) for stringrow in tablestring]
+
+            alltable2 = []
+            for tableRow in allfields:
+                alltable2.append(list(tableRow.values()))
+                alltable2.append(tablestringrow)
+
+            del (alltable2[-1])
+
+            tableToPrint = prettytable.PrettyTable(
+                max_table_width=column_width,
+                align='l',
+                field_names=fieldNames,
+                max_width=maxwidth
+            )
+            tableToPrint.set_style(prettytable.DOUBLE_BORDER)
+            tableToPrint.add_rows(alltable2)
+
             #print(tabulate(rows, headers=list(fieldNames.keys()), tablefmt="outline"))
-            #print(table)
-            pipepager(table.get_string(), cmd='less -FR')
+            print(tableToPrint)
+            #pipepager(table.get_string(), cmd='less -FR')
         printOutput('-' * (os.get_terminal_size().columns - 10), "success", verbose=True)
 
         return returndict
