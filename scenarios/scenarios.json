@@ -25,10 +25,6 @@
         "s3:PutObject"
     ],
 
-
-
-
-
     "Create User and Create Locked Key and Encrypt Bucket using CopyObject": [
         "iam:CreateUser",
         "iam:DeleteUser",
@@ -63,10 +59,6 @@
         "s3:PutObject"
     ],
 
-
-
-
-
     "Create Role Create Locked Key and Encrypt Bucket using CopyObject": [
         "kms:CreateKey",
         "s3:PutBucketEncryptionConfiguration",
@@ -100,10 +92,6 @@
         "iam:CreateRole",
         "iam:DeleteRole"
     ],
-
-
-
-
 
     "Create User, Stop Logs and Create Locked Key and Encrypt Bucket using CopyObject": [
         "iam:CreateUser",
@@ -143,10 +131,6 @@
         "cloudtrail:StopLogging"
     ],
 
-
-
-
-
     "Create Role, Stop Logs Create Locked Key and Encrypt Bucket using CopyObject": [
         "kms:CreateKey",
         "s3:PutBucketEncryptionConfiguration",
@@ -185,9 +169,6 @@
         "cloudtrail:StopLogging"
     ],
 
-
-
-
     "Create User, Delete Logs and Create Locked Key and Encrypt Bucket using CopyObject": [
         "iam:CreateUser",
         "iam:DeleteUser",
@@ -225,10 +206,6 @@
         "s3:PutObject",
         "cloudtrail:DeleteTrail"
     ],
-
-
-
-
 
     "Create Role, Delete Logs Create Locked Key and Encrypt Bucket using CopyObject": [
         "kms:CreateKey",

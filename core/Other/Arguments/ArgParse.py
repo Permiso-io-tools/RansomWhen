@@ -2,6 +2,7 @@ import argparse
 from core.Other.Arguments.Banner import printBanner
 
 def parseArgs():
+    printBanner()
     parser = argparse.ArgumentParser(description='RansomWhen???')
     subparsers = parser.add_subparsers(dest='provider',
                                        help="Select the check on the account (the choices are IDENTITIES, EVENTS)"

@@ -17,51 +17,59 @@ class ListEvents:
         self.identity_name = identity_name
 
     def list_events(self):
-        scenariofile = "scenarios/events.json"
-        with open(scenariofile) as scenariosfile:
-            SCENARIOS = json.load(scenariosfile)
+        try:
+            scenariofile = "scenarios/events.json"
+            with open(scenariofile) as scenariosfile:
+                SCENARIOS = json.load(scenariosfile)
 
-        if self.identity_name is not None:
-            iamClient = authenticate(Profile=self.profile, AccessKey=None, SecretKey=None, SessionToken=None, UserAgent=None, Service="iam")
-            if iamClient is None:
-                exit()
-            try:
-                userarn = iamClient.get_user(UserName=self.identity_name)['User']["Arn"]
-                users = [userarn]
-            except iamClient.exceptions.NoSuchEntityException:
+            if self.identity_name is not None:
+                iamClient = authenticate(Profile=self.profile, AccessKey=None, SecretKey=None, SessionToken=None, UserAgent=None, Service="iam")
+                if iamClient is None:
+                    exit()
                 try:
-                    userarn = \
-                    authenticate(Profile=self.profile, AccessKey=None, SecretKey=None, SessionToken=None, UserAgent=None,
-                                 Service="iam").get_role(RoleName=self.identity_name)['Role']["Arn"]
+                    userarn = iamClient.get_user(UserName=self.identity_name)['User']["Arn"]
                     users = [userarn]
                 except iamClient.exceptions.NoSuchEntityException:
-                    printOutput(message=f"Identity {self.identity_name} does not exist on this account", type="failure")
-                    exit()
+                    try:
+                        userarn = \
+                        authenticate(Profile=self.profile, AccessKey=None, SecretKey=None, SessionToken=None, UserAgent=None,
+                                     Service="iam").get_role(RoleName=self.identity_name)['Role']["Arn"]
+                        users = [userarn]
+                    except iamClient.exceptions.NoSuchEntityException:
+                        printOutput(message=f"Identity {self.identity_name} does not exist on this account", type="failure")
+                        exit()
+
+                    except Exception as e:
+                        printOutput(message=f"Error checking if identity exists: {str(e)}", type="failure")
+                        exit()
 
                 except Exception as e:
                     printOutput(message=f"Error checking if identity exists: {str(e)}", type="failure")
                     exit()
 
-            except Exception as e:
-                printOutput(message=f"Error checking if identity exists: {str(e)}", type="failure")
-                exit()
+            else:
+                users = self.bypassCheckObj.list_users_arn()
+                users.extend(self.bypassCheckObj.list_roles_arn())
 
-        else:
-            users = self.bypassCheckObj.list_users_arn()
-            users.extend(self.bypassCheckObj.list_roles_arn())
+            if users is not None and len(users) > 0:
+                for user in users:
+                    printOutput("----------------------------------------------------", type="loading", verbose=True)
+                    printOutput(f"           {user}", type="loading", verbose=True)
+                    printOutput("----------------------------------------------------", type="loading", verbose=True)
+                    allidentityevents = []
+                    for eventname, eventAttributes in self.cloudTrailObj.eventsJSON.items():
+                        allidentityevents.extend(self.cloudTrailObj.getCTAPIEvents(identityArn=user, eventName=eventname))
 
-        if users is not None and len(users) > 0:
-            for user in users:
-                printOutput("----------------------------------------------------", type="loading", verbose=True)
-                printOutput(f"           {user}", type="loading", verbose=True)
-                printOutput("----------------------------------------------------", type="loading", verbose=True)
-                allidentityevents = []
-                for eventname, eventAttributes in self.cloudTrailObj.eventsJSON.items():
-                    allidentityevents.extend(self.cloudTrailObj.getCTAPIEvents(identityArn=user, eventName=eventname))
+                    tablePrintObj = TablePrint(self.verbose)
+                    rolefields = tablePrintObj.eventTableprint(allidentityevents)
+                    dumpEventsCSV(rolefields, self.accountID, user.split("/")[-1])
+        except KeyboardInterrupt:
+            exit()
 
-                tablePrintObj = TablePrint(self.verbose)
-                rolefields = tablePrintObj.eventTableprint(allidentityevents)
-                dumpEventsCSV(rolefields, self.accountID, user.split("/")[-1])
+        except Exception as e:
+            printOutput(f"Error looking at events: {str(e)}", "failure")
+
+
 
 class IdentitiesEnumeration:
     def __init__(self, profile, accountID, args):

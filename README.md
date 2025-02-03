@@ -1,15 +1,13 @@
-# DetentionDodger
-![image](.img/detentiondodger.png)
+# RansomWhen
+![image](.img/ransomwhen.png)
 
-Associated Blog: [Breaking free from the chains of fate - Bypassing AWSCompromisedKeyQuarantineV2 Policy](https://permiso.io/blog/introducing-detention-dodger)\
-\
-Conferences Where the tool was presented:
-- **SecTor Arsenal 2024** (https://www.blackhat.com/sector/2024/arsenal/schedule/index.html#detentiondodger-finding-rusted-links-on-the-chains-of-fate-43392)
-- **SANS Pentest Hackfest Hollywood 2024** (https://www.sans.org/cyber-security-training-events/hackfest-summit-2024/)
+**Associated Blog**: [RansomWhen??? I never even notice it…](https://permiso.io/blog/ransomwhen-i-did-not-even-notice-it)\
+**Research Blog**: [Encrypting buckets for compliance and ransom - How Attackers Can Use KMS to Ransomware S3 Buckets](https://blog.pepperclipp.com/pepperclipp-public/other-articles/encrypting-buckets-for-compliance-and-ransom)
 
 ----------------------------------------------------------------------------------
 
-DetentionDodger is a tool designed to find users whose credentials have been leaked/compromised and the impact they have on the target
+RansomWhen is a tool to enumerate identities that can lock S3 Buckets using KMS, resulting in ransomwares,
+as well as detect occurances of S3 Ransomwares using KMS
 ````
 -----------------------------------------------------------------------------------------------------------------------------------------------------
                                                                   ,,,,,,
@@ -56,69 +54,181 @@ python3 -m venv ./venv
 source venv/bin/activate
 python3 -m pip install -r requirements.txt
 ````
-Then, just run the tool by running **detentiondodger.py**:
+Then, just run the tool by running **ransomwhen.py**:
 ````
-usage: DetentionDodger [-h] [-p PROFILE]
+usage: ransomwhen.py [-h] {IDENTITIES,EVENTS} ...
 
-DetentionDodger is a tool designed to find users whose credentials have been leaked/compromised and the impact they have on the target
+RansomWhen???
+
+positional arguments:
+  {IDENTITIES,EVENTS}  Select the check on the account (the choices are IDENTITIES, EVENTS)
+    IDENTITIES         IDENTITIES specific arguments
+    EVENTS             EVENTS specific arguments
 
 options:
-  -h, --help            show this help message and exit
-  -p PROFILE, --profile PROFILE
-                        The AWS Profile Name to authenticate as. Default is 'default'. The credentials need to have access to iam:ListUsers, iam:ListUserPolicies,
-                        iam:ListAttachedUserPolicies, iam:ListGroupsForUser, iam:ListGroupPolicies, iam:ListAttachedGroupPolicies, cloudtrail:LookupEvents,
-                        iam:GetPolicyVersion, iam:GetPolicy
+  -h, --help           show this help message and exit
 ````
 ### Docker
 A Dockerfile is placed inside the main directory of the project. To build the image, inside the main directory of the project run:
 ````
-docker build -t detentiondodger .
+docker build -t ransomwhen .
 ````
-Then run the container with directories **output** and **~/.aws** mounted to host:
+Then run the container with directory **~/.aws** mounted to host:
 ````
-docker run -v ~/.aws:/root/.aws -v ./output:/detentiondodger/output -it detentiondodger -h
-usage: DetentionDodger [-h] [-p PROFILE]
+usage: ransomwhen.py [-h] {IDENTITIES,EVENTS} ...
 
-DetentionDodger is a tool designed to find users whose credentials have been leaked/compromised and the impact they have on the target
+RansomWhen???
+
+positional arguments:
+  {IDENTITIES,EVENTS}  Select the check on the account (the choices are IDENTITIES, EVENTS)
+    IDENTITIES         IDENTITIES specific arguments
+    EVENTS             EVENTS specific arguments
 
 options:
-  -h, --help            show this help message and exit
-  -p PROFILE, --profile PROFILE
-                        The AWS Profile Name to authenticate as. Default is 'default'. The credentials need to have access to iam:ListUsers, iam:ListUserPolicies,
-                        iam:ListAttachedUserPolicies, iam:ListGroupsForUser, iam:ListGroupPolicies, iam:ListAttachedGroupPolicies, cloudtrail:LookupEvents,
-                        iam:GetPolicyVersion, iam:GetPolicy
+  -h, --help           show this help message and exit
 ````
 
-## Usage
-### Finding all quarantied Users
-When no user is specified using **-u** flag, the tool will list all the users and find the ones that either have the Quarantine Policy Attached or attempted to have it attached, by looking at the CloudTrail Logs. Then it will list all the policies them and their groups have and check the privileges based on the scenarios found on the scenarios directory.
-![image](.img/allusers.png)
+The tool has 2 nested Argument Parsers, IDENTITIES and EVENTS. IDENTITIES will list all identities with privileges to any of the ransomware scenarios and EVENTS will list malicious events related to ransomware per each identity.
 
-### Checking specific user
-A user can be specified using **-u** flag. In that case, the check for the Quarantine Policy will not be done and the user will be checked only for the Privileges it has.
-![image](.img/singleuser.png)
+## **Enumerating Identities**
 
-### Output
-The outputs will be dumped on the **output** directory. Each AWS Account will have its own directory and the CSV files of each user will be saved there:
+To enumerate the identities, the tool will use the JSON Blob on path `scenarios/scenarios.json` containing the privileges needed for different attacks. That JSON is configurable with the below format. Each scenario will have a name and a list of events to check.
+
+```json
+{
+    "Create Locked Key and Encrypt Bucket using CopyObject": [
+        "kms:CreateKey",
+        "s3:PutBucketEncryptionConfiguration",
+        "s3:CopyObject"
+    ]
+}
+```
+
+Each scenario will be listed as:
+
+- **allowed**, for cases when all the events in a scenario are allowed
+- **partially**, for cases when at least 1 event in the scenario is allowed
+- **denied**, for cases when no event on the scenario is allowed
+
+![RansomWhen output for Identity enumeration](.img/identities.png)
+
+RansomWhen output for Identity enumeration
+
+```json
+Create Locked Key and Encrypt Bucket using CopyObject
+Create Locked Key and Encrypt Bucket using Get/Put Object
+Create Role Create Locked Key and Encrypt Bucket using CopyObject
+Create Role Create Locked Key and Encrypt Bucket using Get/Put Object
+Create Role Update Key Policy to Lock Key and Encrypt Bucket using CopyObject
+Create Role Update Key Policy to Lock Key and Encrypt Bucket using Get/Put Object
+Create Role, Delete Logs Create Locked Key and Encrypt Bucket using CopyObject
+Create Role, Delete Logs Create Locked Key and Encrypt Bucket using Get/Put Object
+Create Role, Delete Logs Update Key Policy to Lock Key and Encrypt Bucket using CopyObject
+Create Role, Delete Logs Update Key Policy to Lock Key and Encrypt Bucket using Get/Put Object
+Create Role, Stop Logs Create Locked Key and Encrypt Bucket using CopyObject
+Create Role, Stop Logs Create Locked Key and Encrypt Bucket using Get/Put Object
+Create Role, Stop Logs Update Key Policy to Lock Key and Encrypt Bucket using CopyObject
+Create Role, Stop Logs Update Key Policy to Lock Key and Encrypt Bucket using Get/Put Object
+Create User and Create Locked Key and Encrypt Bucket using CopyObject
+Create User and Create Locked Key and Encrypt Bucket using Get/Put Object
+Create User and Update Key Policy to Lock Key and Encrypt Bucket using CopyObject
+Create User and Update Key Policy to Lock Key and Encrypt Bucket using Get/Put Object
+Create User, Delete Logs and Create Locked Key and Encrypt Bucket using CopyObject
+Create User, Delete Logs and Create Locked Key and Encrypt Bucket using Get/Put Object
+Create User, Delete Logs and Update Key Policy to Lock Key and Encrypt Bucket using CopyObject
+Create User, Delete Logs and Update Key Policy to Lock Key and Encrypt Bucket using Get/Put Object
+Create User, Stop Logs and Create Locked Key and Encrypt Bucket using CopyObject
+Create User, Stop Logs and Create Locked Key and Encrypt Bucket using Get/Put Object
+Create User, Stop Logs and Update Key Policy to Lock Key and Encrypt Bucket using CopyObject
+Create User, Stop Logs and Update Key Policy to Lock Key and Encrypt Bucket using Get/Put Object
+Update Key Policy to Lock Key and Encrypt Bucket using CopyObject
+Update Key Policy to Lock Key and Encrypt Bucket using Get/Put Object
+```
+
+## **Finding malicious events**
+
+As far as finding identities with malicious events, the tool will look into the JSON Blob `scenarios/events.json`. That file can also be configured, with a format as below, where each event will have its information set to either null or a value, just as it is supposed to be saved on the CloudTrail Logs.
+
+```json
+{
+  "CreateKey": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": null,
+    "ResponseElements": null,
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "kms.amazonaws.com"
+  }
+}
+```
+
+The events below are the ones that will get checked on CloudTrail. And as seen before, each event can be configured to check for specific indicators.
+
+```json
+kms:CreateKey
+kms:PutKeyPolicy
+kms:ReEncrypt
+s3:PutBucketEncryptionConfiguration
+s3:CopyObject
+s3:PutObject
+s3:GetObject
+iam:CreateUser
+iam:DeleteUser
+iam:CreateRole
+iam:DeleteRole
+iam:AttachUserPolicy
+iam:PutUserPolicy
+iam:AttachRolePolicy
+iam:PutRolePolicy
+iam:AttachRolePolicy
+iam:PutRolePolicy
+cloudtrail:StopLogging
+cloudtrail:DeleteTrail
+cloudtrail:UpdateTrail
+```
+
+Then,  running the tool, would list all the identities (IAM Users and Roles) and the events they have ran over the last 90 days.
+![Ransomware related Malicious Events on CloudTrail](.img/events.png)
+
+# Output
+The outputs will be dumped on the **output** directory. Each AWS Account will have its own directory and the CSV files of each identity will be saved there:
 ````
 ls output/ -R
 output/:
 012345678912
 
 output/012345678912:
-adminUser.csv  quarantinedUser.csv
+adminUser-predefined-scenarios.csv adminUser-events.csv
 ````
 
 ### Tests
 The tool will test for attacks provided on **./scenarios/scenarios.json**:
 ````
-cat ./queries/queries.json
+cat ./scenarios/scenarios.json
 [
-    "AssumeRole": [
-        "sts:AssumeRole"
+    "Create Locked Key and Encrypt Bucket using CopyObject": [
+        "kms:CreateKey",
+        "s3:PutBucketEncryptionConfiguration",
+        "s3:CopyObject"
     ],
     ...
 ]
 ````
 Each attack has a name and a list of privileges. New scenarios can be added or existing ones can be modified on the JSON and they will be automatically executed by the tool.
 
+The malicious events are stored on ./scenarios/events.json and each have their options to filter:
+```
+[
+    "CreateKey": {
+        "UserAgent": null,
+        "Identity": null,
+        "RequestParameters": null,
+        "ResponseElements": null,
+        "ErrorCode": null,
+        "ErrorMessage": null,
+        "EventSource": "kms.amazonaws.com"
+    }
+    ...
+] 
+```

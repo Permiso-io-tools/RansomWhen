@@ -1,5 +1,4 @@
 {
-
   "CreateKey": {
     "UserAgent": null,
     "Identity": null,
@@ -14,6 +13,15 @@
     "Identity": null,
     "RequestParameters": null,
     "ResponseElements": null,
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "kms.amazonaws.com"
+  },
+  "ReEncrypt": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": null,
+    "ResponseElements": {},
     "ErrorCode": null,
     "ErrorMessage": null,
     "EventSource": "kms.amazonaws.com"
@@ -90,6 +98,7 @@
     "ErrorMessage": null,
     "EventSource": "iam.amazonaws.com"
   },
+
   "StopLogging": {
     "UserAgent": null,
     "Identity": null,
@@ -100,6 +109,15 @@
     "EventSource": "cloudtrail.amazonaws.com"
   },
   "DeleteTrail": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": null,
+    "ResponseElements": {},
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "cloudtrail.amazonaws.com"
+  },
+  "UpdateTrail": {
     "UserAgent": null,
     "Identity": null,
     "RequestParameters": null,
