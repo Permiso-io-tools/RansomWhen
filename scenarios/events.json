@@ -17,6 +17,51 @@
     "ErrorMessage": null,
     "EventSource": "kms.amazonaws.com"
   },
+  "CreateCustomKeyStore": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": null,
+    "ResponseElements": {},
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "kms.amazonaws.com"
+  },
+  "UpdateCustomKeyStore": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": null,
+    "ResponseElements": {},
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "kms.amazonaws.com"
+  },
+  "ConnectCustomKeyStore": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": null,
+    "ResponseElements": {},
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "kms.amazonaws.com"
+  },
+  "DisconnectCustomKeyStore": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": null,
+    "ResponseElements": {},
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "kms.amazonaws.com"
+  },
+  "DeleteCustomKeyStore": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": null,
+    "ResponseElements": {},
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "kms.amazonaws.com"
+  },
   "ReEncrypt": {
     "UserAgent": null,
     "Identity": null,
@@ -98,7 +143,6 @@
     "ErrorMessage": null,
     "EventSource": "iam.amazonaws.com"
   },
-
   "StopLogging": {
     "UserAgent": null,
     "Identity": null,
