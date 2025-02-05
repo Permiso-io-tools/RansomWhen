@@ -54,8 +54,11 @@
     "cloudtrail:DeleteTrail"
   ],
 
-  "Stop Logging using KMS": [
-    "kms:PutKeyPolicy",
+  "Stop Logging using KMS by updating KMS Key Policy": [
+    "kms:PutKeyPolicy"
+  ],
+
+  "Stop Logging using KMS by attaching a KMS Key to the Trail": [
     "cloudtrail:UpdateTrail"
   ],
 

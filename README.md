@@ -112,35 +112,18 @@ Each scenario will be listed as:
 
 ![RansomWhen output for Identity enumeration](.img/identities.png)
 
-RansomWhen output for Identity enumeration
-
-```json
+```
+Attach Custom KMS Key Store
 Create Locked Key and Encrypt Bucket using CopyObject
 Create Locked Key and Encrypt Bucket using Get/Put Object
-Create Role Create Locked Key and Encrypt Bucket using CopyObject
-Create Role Create Locked Key and Encrypt Bucket using Get/Put Object
-Create Role Update Key Policy to Lock Key and Encrypt Bucket using CopyObject
-Create Role Update Key Policy to Lock Key and Encrypt Bucket using Get/Put Object
-Create Role, Delete Logs Create Locked Key and Encrypt Bucket using CopyObject
-Create Role, Delete Logs Create Locked Key and Encrypt Bucket using Get/Put Object
-Create Role, Delete Logs Update Key Policy to Lock Key and Encrypt Bucket using CopyObject
-Create Role, Delete Logs Update Key Policy to Lock Key and Encrypt Bucket using Get/Put Object
-Create Role, Stop Logs Create Locked Key and Encrypt Bucket using CopyObject
-Create Role, Stop Logs Create Locked Key and Encrypt Bucket using Get/Put Object
-Create Role, Stop Logs Update Key Policy to Lock Key and Encrypt Bucket using CopyObject
-Create Role, Stop Logs Update Key Policy to Lock Key and Encrypt Bucket using Get/Put Object
-Create User and Create Locked Key and Encrypt Bucket using CopyObject
-Create User and Create Locked Key and Encrypt Bucket using Get/Put Object
-Create User and Update Key Policy to Lock Key and Encrypt Bucket using CopyObject
-Create User and Update Key Policy to Lock Key and Encrypt Bucket using Get/Put Object
-Create User, Delete Logs and Create Locked Key and Encrypt Bucket using CopyObject
-Create User, Delete Logs and Create Locked Key and Encrypt Bucket using Get/Put Object
-Create User, Delete Logs and Update Key Policy to Lock Key and Encrypt Bucket using CopyObject
-Create User, Delete Logs and Update Key Policy to Lock Key and Encrypt Bucket using Get/Put Object
-Create User, Stop Logs and Create Locked Key and Encrypt Bucket using CopyObject
-Create User, Stop Logs and Create Locked Key and Encrypt Bucket using Get/Put Object
-Create User, Stop Logs and Update Key Policy to Lock Key and Encrypt Bucket using CopyObject
-Create User, Stop Logs and Update Key Policy to Lock Key and Encrypt Bucket using Get/Put Object
+Create Role, Add Inline Policy and Delete
+Create Role, Attach Inline Policy and Delete
+Create User, Add Inline Policy and Delete
+Create User, Attach Inline Policy and Delete
+Delete CloudTrail Trail
+Stop Logging
+Stop Logging using KMS
+Update Current Custom KMS Key Store
 Update Key Policy to Lock Key and Encrypt Bucket using CopyObject
 Update Key Policy to Lock Key and Encrypt Bucket using Get/Put Object
 ```
@@ -165,10 +148,15 @@ As far as finding identities with malicious events, the tool will look into the 
 
 The events below are the ones that will get checked on CloudTrail. And as seen before, each event can be configured to check for specific indicators.
 
-```json
+```
 kms:CreateKey
 kms:PutKeyPolicy
 kms:ReEncrypt
+kms:CreateCustomKeyStore
+kms:UpdateCustomKeyStore
+kms:ConnectCustomKeyStore
+kms:DisconnectCustomKeyStore
+kms:DeleteCustomKeyStore
 s3:PutBucketEncryptionConfiguration
 s3:CopyObject
 s3:PutObject
@@ -179,8 +167,6 @@ iam:CreateRole
 iam:DeleteRole
 iam:AttachUserPolicy
 iam:PutUserPolicy
-iam:AttachRolePolicy
-iam:PutRolePolicy
 iam:AttachRolePolicy
 iam:PutRolePolicy
 cloudtrail:StopLogging

@@ -134,6 +134,42 @@
     "ErrorMessage": null,
     "EventSource": "iam.amazonaws.com"
   },
+  "AttachRolePolicy": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": null,
+    "ResponseElements": {},
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "iam.amazonaws.com"
+  },
+  "PutRolePolicy": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": null,
+    "ResponseElements": {},
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "iam.amazonaws.com"
+  },
+  "PutUserPolicy": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": null,
+    "ResponseElements": {},
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "iam.amazonaws.com"
+  },
+  "AttachUserPolicy": {
+    "UserAgent": null,
+    "Identity": null,
+    "RequestParameters": null,
+    "ResponseElements": {},
+    "ErrorCode": null,
+    "ErrorMessage": null,
+    "EventSource": "iam.amazonaws.com"
+  },
   "DeleteRole": {
     "UserAgent": null,
     "Identity": null,
