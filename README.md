@@ -2,7 +2,7 @@
 ![image](.img/ransomwhen.png)
 
 **Associated Blog**: [RansomWhen??? I never even notice it…](https://permiso.io/blog/ransomwhen-i-did-not-even-notice-it)\
-**Research Blog**: [Encrypting buckets for compliance and ransom - How Attackers Can Use KMS to Ransomware S3 Buckets](https://blog.pepperclipp.com/pepperclipp-public/other-articles/encrypting-buckets-for-compliance-and-ransom)
+**Research Blog**: [Encrypting buckets for compliance and ransom - How Attackers Can Use KMS to Ransomware S3 Buckets](https://blog.pepperclipp.com/pepperclipp-public/encrypting-buckets-for-compliance-and-ransom-how-attackers-can-use-kms-to-ransomware-s3-buckets)
 
 ----------------------------------------------------------------------------------
 
